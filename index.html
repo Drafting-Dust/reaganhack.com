@@ -595,7 +595,7 @@
 <!-- NAV -->
 <nav>
   <a href="#" class="nav-logo">
-    <img src="rh-logo.png" alt="Reagan Hack" style="height: 36px; width: auto; filter: invert(0); mix-blend-mode: multiply;">
+    <img src="RH_LOGO.png" alt="Reagan Hack" style="height: 36px; width: auto;">
   </a>
   <ul class="nav-links">
     <li><a href="#work">Work</a></li>
@@ -696,36 +696,6 @@
     <h2 class="section-title">Selected Work</h2>
   </div>
   <div class="projects-grid">
-
-    <div class="project-card reveal">
-      <div class="project-meta">
-        <span class="project-type">Exhibition Curation</span>
-        <span class="project-year">2024</span>
-      </div>
-      <h3 class="project-title">Art &amp; Design<br>Faculty Showcase</h3>
-      <p class="project-desc">Curated and spatially arranged works for the Queens University Art & Design Faculty Showcase — organizing pieces for a cohesive visual narrative and designing the exhibition layout to guide audience engagement.</p>
-      <div class="project-tags">
-        <span class="tag">Curation</span>
-        <span class="tag">Spatial Layout</span>
-        <span class="tag">Exhibition Design</span>
-      </div>
-      <span class="project-arrow">→</span>
-    </div>
-
-    <div class="project-card reveal">
-      <div class="project-meta">
-        <span class="project-type">Exhibition Curation</span>
-        <span class="project-year">2024</span>
-      </div>
-      <h3 class="project-title">Voices of Democracy:<br>Exploring the Ideal</h3>
-      <p class="project-desc">Curated the Voices of Democracy exhibition and moderated a post-opening panel discussion — facilitating live conversations with artists about their creative process and the role of democracy in contemporary practice.</p>
-      <div class="project-tags">
-        <span class="tag">Curation</span>
-        <span class="tag">Panel Moderation</span>
-        <span class="tag">Public Programming</span>
-      </div>
-      <span class="project-arrow">→</span>
-    </div>
 
     <a href="meridian-pediatric-clinic.html" class="project-card reveal" style="text-decoration: none; color: inherit; display: block;">
       <div class="project-meta">
@@ -901,7 +871,7 @@
 <section class="contact" id="contact" style="border-top: none;">
   <p class="contact-eyebrow">Available for Projects &amp; Collaboration</p>
   <h2 class="contact-headline">Let's Work<br>Together</h2>
-  <a href="/cdn-cgi/l/email-protection#036b6260687143727666666d702d666776" class="contact-email"><span class="__cf_email__" data-cfemail="6f070e0c041d2f1e1a0a0a011c410a0b1a">[email&#160;protected]</span></a>
+  <a href="/cdn-cgi/l/email-protection#87efe6e4ecf5c7f6f2e2e2e9f4a9e2e3f2" class="contact-email"><span class="__cf_email__" data-cfemail="432b2220283103323626262d306d262736">[email&#160;protected]</span></a>
   <div class="contact-links">
     <a href="https://www.linkedin.com/in/reaganhack" target="_blank" class="contact-link">LinkedIn</a>
     <a href="https://github.com/Drafting-Dust" target="_blank" class="contact-link">GitHub</a>
@@ -955,7 +925,6 @@
 
 
   // Scroll reveal — robust version
-  // Only animate elements NOT already in the viewport on load; show those immediately
   const reveals = document.querySelectorAll('.reveal');
 
   if ('IntersectionObserver' in window) {
@@ -971,14 +940,12 @@
     reveals.forEach(el => {
       const rect = el.getBoundingClientRect();
       if (rect.top < window.innerHeight) {
-        // Already visible on load — show immediately, no animation
         el.classList.add('visible');
       } else {
         observer.observe(el);
       }
     });
   } else {
-    // Fallback: show everything
     reveals.forEach(el => el.classList.add('visible'));
   }
 
