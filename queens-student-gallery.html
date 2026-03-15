@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Queens University Student Gallery — Reagan Hack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F2EC;
+    --warm-white: #FAFAF8;
+    --charcoal: #1C1C1A;
+    --mid-grey: #6B6B67;
+    --light-grey: #C8C8C2;
+    --rule: #D4D0C8;
+    --dust-rose: #C4A09A;
+    --sage: #8A9E8C;
+    --gold: #C8A84B;
+    --queens-blue: #1a3a6b;
+    --queens-blue-muted: rgba(26,58,107,0.75);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    color: var(--charcoal);
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Cursor */
+  .cursor {
+    position: fixed; width: 8px; height: 8px;
+    background: var(--charcoal); border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s;
+  }
+  .cursor-ring {
+    position: fixed; width: 36px; height: 36px;
+    border: 1px solid var(--charcoal); border-radius: 50%;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: width 0.25s, height 0.25s, opacity 0.2s;
+    opacity: 0.5;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.5rem 3rem;
+    background: var(--cream);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .nav-back {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--mid-grey);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 0.6rem;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--charcoal); }
+  .nav-back::before { content: '←'; font-size: 0.8rem; }
+
+  .nav-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--light-grey);
+  }
+
+  /* HERO */
+  .hero {
+    margin-top: 80px;
+    position: relative;
+    height: 85vh;
+    background: var(--charcoal);
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .hero-image-container {
+    position: absolute; inset: 0;
+    overflow: hidden;
+  }
+
+  .hero-image-container img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    opacity: 0.5;
+    transform: scale(1.05);
+    animation: heroZoom 12s ease forwards;
+  }
+
+  @keyframes heroZoom {
+    from { transform: scale(1.05); }
+    to   { transform: scale(1.0); }
+  }
+
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(28,28,26,0.95) 0%, rgba(28,28,26,0.25) 60%, transparent 100%);
+  }
+
+  .hero-content {
+    position: relative; z-index: 2;
+    padding: 4rem 3rem;
+    width: 100%;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 1.2rem;
+    opacity: 0; animation: fadeUp 0.8s ease 0.3s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 9vw, 8rem);
+    line-height: 0.9; letter-spacing: 0.02em;
+    color: var(--cream);
+    opacity: 0; animation: fadeUp 0.9s ease 0.45s forwards;
+  }
+
+  .hero-subtitle {
+    margin-top: 1.5rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem; font-style: italic; font-weight: 300;
+    color: rgba(245,242,236,0.55);
+    max-width: 600px; line-height: 1.6;
+    opacity: 0; animation: fadeUp 1s ease 0.6s forwards;
+  }
+
+  .hero-meta {
+    margin-top: 2.5rem;
+    display: flex; gap: 3rem; flex-wrap: wrap;
+    opacity: 0; animation: fadeUp 1s ease 0.75s forwards;
+  }
+
+  .meta-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(255,255,255,0.3);
+    margin-bottom: 0.3rem;
+  }
+  .meta-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; color: rgba(255,255,255,0.7);
+    letter-spacing: 0.05em;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* CONCEPT */
+  .concept {
+    padding: 7rem 3rem;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 5rem;
+    border-bottom: 1px solid var(--rule);
+    align-items: start;
+  }
+
+  .concept-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--mid-grey);
+    padding-top: 0.4rem;
+  }
+
+  .concept-pullquote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 300; line-height: 1.3;
+    margin-bottom: 2.5rem;
+    color: var(--charcoal);
+  }
+
+  .concept-pullquote em {
+    font-style: italic; color: var(--gold);
+  }
+
+  .concept-body {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; line-height: 2;
+    color: var(--mid-grey);
+  }
+
+  .concept-body p + p { margin-top: 1.2rem; }
+
+  /* DESIGN PILLARS */
+  .pillars {
+    background: var(--charcoal);
+    padding: 5rem 3rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .pillars-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--mid-grey);
+    margin-bottom: 3rem;
+  }
+
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+  }
+
+  .pillar {
+    padding: 2.5rem;
+    border-right: 1px solid rgba(255,255,255,0.07);
+    position: relative;
+  }
+  .pillar:last-child { border-right: none; }
+
+  .pillar-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem; line-height: 1;
+    color: rgba(255,255,255,0.06);
+    margin-bottom: 1.5rem;
+  }
+
+  .pillar-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 400;
+    color: var(--cream);
+    margin-bottom: 1rem; line-height: 1.2;
+  }
+
+  .pillar-desc {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; line-height: 1.9;
+    color: rgba(255,255,255,0.38);
+  }
+
+  .pillar-tag {
+    display: inline-block;
+    margin-top: 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem; letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.3);
+  }
+
+  /* DRAWINGS / SECTION */
+  .drawings {
+    padding: 7rem 3rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .section-header {
+    display: flex; align-items: baseline; gap: 1.5rem;
+    margin-bottom: 4rem;
+  }
+
+  .section-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.2em; color: var(--light-grey);
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    letter-spacing: 0.05em; line-height: 1;
+  }
+
+  .drawing-full {
+    width: 100%;
+    margin-bottom: 3rem;
+  }
+
+  .drawing-full img {
+    width: 100%;
+    display: block;
+    border: 1px solid var(--rule);
+  }
+
+  .drawing-caption {
+    display: flex; justify-content: space-between;
+    align-items: baseline;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 3rem;
+  }
+
+  .caption-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--charcoal);
+  }
+
+  .caption-scale {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem; color: var(--mid-grey);
+  }
+
+  /* SIDE BY SIDE DRAWINGS */
+  .drawing-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .drawing-pair img {
+    width: 100%; display: block;
+    border: 1px solid var(--rule);
+  }
+
+  /* PHASE SECTION */
+  .phase-block {
+    padding: 5rem 3rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .phase-header {
+    display: flex; align-items: center; gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .phase-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem; letter-spacing: 0.2em;
+    padding: 0.4rem 1.2rem;
+    border: 1px solid var(--rule);
+    color: var(--mid-grey);
+  }
+
+  .phase-badge.active {
+    background: var(--charcoal);
+    color: var(--cream);
+    border-color: var(--charcoal);
+  }
+
+  .phase-badge.future {
+    border-style: dashed;
+    color: var(--light-grey);
+  }
+
+  .phase-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+    font-weight: 300; line-height: 1.2;
+  }
+
+  .phase-body {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.63rem; line-height: 2;
+    color: var(--mid-grey);
+    max-width: 800px;
+    margin-bottom: 2rem;
+  }
+
+  /* SITE ANALYSIS TABLE */
+  .analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--rule);
+    margin-top: 3rem;
+  }
+
+  .analysis-cell {
+    padding: 2rem;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .analysis-cell:nth-child(3n) { border-right: none; }
+  .analysis-cell:nth-last-child(-n+3) { border-bottom: none; }
+
+  .analysis-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--light-grey);
+    margin-bottom: 0.6rem;
+  }
+
+  .analysis-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem; line-height: 1.8;
+    color: var(--charcoal);
+  }
+
+  .analysis-risk {
+    display: inline-block;
+    margin-top: 0.6rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.5rem; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .risk-critical { background: rgba(196,80,80,0.12); color: #a04040; }
+  .risk-high     { background: rgba(196,140,80,0.12); color: #8a6030; }
+  .risk-mod      { background: rgba(180,180,120,0.12); color: #777740; }
+  .risk-low      { background: rgba(100,160,100,0.10); color: #406040; }
+
+  /* COURSE INFO */
+  .course-info {
+    padding: 5rem 3rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .course-cell {
+    padding: 2rem 2rem 2rem 0;
+    border-right: 1px solid var(--rule);
+    padding-right: 2rem;
+  }
+  .course-cell:last-child { border-right: none; }
+
+  .course-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--light-grey);
+    margin-bottom: 0.6rem;
+  }
+  .course-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem; font-weight: 400;
+    line-height: 1.3;
+  }
+
+  /* PAGE FOOTER */
+  .page-footer {
+    padding: 4rem 3rem;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--rule);
+    background: var(--cream);
+  }
+
+  .footer-back {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--mid-grey);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 0.6rem;
+    transition: color 0.2s;
+  }
+  .footer-back::before { content: '←'; }
+  .footer-back:hover { color: var(--charcoal); }
+
+  .footer-credit {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem; letter-spacing: 0.15em;
+    color: var(--light-grey); text-transform: uppercase;
+  }
+
+  /* REVEAL */
+  .reveal {
+    opacity: 0; transform: translateY(28px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .concept { grid-template-columns: 1fr; gap: 2rem; }
+    .pillars-grid { grid-template-columns: 1fr; }
+    .pillar { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .drawing-pair { grid-template-columns: 1fr; }
+    .analysis-grid { grid-template-columns: 1fr; }
+    .analysis-cell { border-right: none; border-bottom: 1px solid var(--rule); }
+    .analysis-cell:nth-last-child(-n+3) { border-bottom: 1px solid var(--rule); }
+    .analysis-cell:last-child { border-bottom: none; }
+    .course-info { grid-template-columns: repeat(2, 1fr); }
+    nav { padding: 1.2rem 1.5rem; }
+    .hero-content, .concept, .drawings, .phase-block, .pillars, .course-info, .page-footer { padding-left: 1.5rem; padding-right: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-back">Portfolio</a>
+  <span class="nav-title">Queens University Student Gallery</span>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-image-container">
+    <img src="phase-2.png" alt="Queens University Student Gallery — Phase 2 Render">
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Feasibility Study + Design Analysis — Queens University of Charlotte</p>
+    <h1 class="hero-title">Student<br>Gallery</h1>
+    <p class="hero-subtitle">Transforming a recessed alcove adjacent to a performance theatre into a dedicated student exhibition gallery — without a permit, without egress compromise, and without looking temporary.</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <div class="meta-label">Location</div>
+        <div class="meta-value">Niche 213 — Level 2, SBG Center</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Typology</div>
+        <div class="meta-value">Institutional / Gallery</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Scope</div>
+        <div class="meta-value">250–300 SF Adaptive Reuse</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Deliverable</div>
+        <div class="meta-value">Feasibility Report · 3 Concept Directions</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Year</div>
+        <div class="meta-value">2026</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONCEPT STATEMENT -->
+<div class="concept">
+  <div class="concept-label reveal">Design Problem</div>
+  <div class="concept-text">
+    <p class="concept-pullquote reveal">
+      <em>The Alcove.</em><br>
+      How do you transform a corridor niche into a gallery that reads as legitimate — without touching a single structural wall?
+    </p>
+    <div class="concept-body reveal">
+      <p>Niche 213 is an approximately 8–10 foot deep by 28–32 foot wide recess set into the south wall of the Level 2 corridor at the Sarah Belk Gambrell Center for Arts and Civic Engagement. It sits immediately adjacent to Performance Theatre 241 — meaning any enclosure triggers change-of-occupancy review, HVAC modifications, and a Mecklenburg County building permit. The back wall is an acoustic separation barrier. The ceiling is institutional ACT. The floor is corridor carpet continuous with the hallway.</p>
+      <p>The core design challenge: transform this ambiguous leftover zone into a space that functions, feels, and is perceived as a legitimate student exhibition gallery — capable of hosting curated openings, conferring real institutional identity on student artists, and eventually attracting donor investment — all while respecting the egress corridor it lives within.</p>
+      <p>The answer is not walls. It's lighting, threshold, and identity. A painting under a troffer is hallway decoration. The same painting on a rail, washed by a 3000K LED spot, within a zone marked by a floor-finish transition and a gallery header, is an exhibition. The architecture of the niche — column framing, recessed depth, dedicated back wall — does the heavy lifting. The design just needs to activate it.</p>
+    </div>
+  </div>
+</div>
+
+<!-- DESIGN PILLARS -->
+<div class="pillars">
+  <div class="pillars-label reveal">Design Strategy</div>
+  <div class="pillars-grid">
+    <div class="pillar reveal">
+      <div class="pillar-number">01</div>
+      <h3 class="pillar-title">Light Before<br>Architecture</h3>
+      <p class="pillar-desc">The fastest route from hallway to gallery is not partition — it's lighting. Replacing ACT troffers with 3000K, 90+ CRI adjustable track heads aimed at the artwork immediately reframes the spatial contract. The shift in color temperature alone signals a different kind of space.</p>
+      <span class="pillar-tag">Gallery Lighting</span>
+    </div>
+    <div class="pillar reveal">
+      <div class="pillar-number">02</div>
+      <h3 class="pillar-title">Threshold Without<br>Walls</h3>
+      <p class="pillar-desc">The existing structural columns at the corridor edge are the gateway. A floor-finish transition — LVT or carpet tile in a contrasting neutral — signals entry without a door. A lightweight header beam spanning column to column completes the portal. No permit. No HVAC. Full gallery identity.</p>
+      <span class="pillar-tag">Spatial Threshold</span>
+    </div>
+    <div class="pillar reveal">
+      <div class="pillar-number">03</div>
+      <h3 class="pillar-title">Phase 3 as<br>Aspiration</h3>
+      <p class="pillar-desc">A glass storefront enclosure — matching the Level 1 gallery vocabulary — is the long-term capital vision: a glowing vitrine visible from the corridor, a naming opportunity, a permanent legacy space. The phased approach tests operations before committing to the $80–120K enclosure investment.</p>
+      <span class="pillar-tag">Phase 3 Capital Project</span>
+    </div>
+  </div>
+</div>
+
+<!-- EXISTING CONDITIONS DRAWINGS -->
+<div class="drawings" style="background: var(--warm-white);">
+  <div class="section-header reveal">
+    <span class="section-number">01</span>
+    <h2 class="section-title">Existing Conditions</h2>
+  </div>
+
+  <div class="drawing-pair reveal">
+    <div>
+      <img src="existing-conditions-floor-plan.png" alt="Existing Conditions Floor Plan — Level 2, SBG Center">
+      <div class="drawing-caption" style="margin-bottom: 0;">
+        <span class="caption-title">Existing Floor Plan — Level 2</span>
+        <span class="caption-scale">Record Drawing Reference: A8.20</span>
+      </div>
+    </div>
+    <div>
+      <img src="existing-rcp.png" alt="Existing Reflected Ceiling Plan — Level 2, SBG Center">
+      <div class="drawing-caption" style="margin-bottom: 0;">
+        <span class="caption-title">Existing Reflected Ceiling Plan — Level 2</span>
+        <span class="caption-scale">Record Drawing Reference: A1.70</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Site Analysis -->
+  <div class="section-header reveal" style="margin-top: 4rem;">
+    <span class="section-number">02</span>
+    <h2 class="section-title">Site Analysis</h2>
+  </div>
+
+  <div class="analysis-grid reveal">
+    <div class="analysis-cell">
+      <div class="analysis-label">Niche Dimensions</div>
+      <div class="analysis-value">28–32 ft wide × 8–10 ft deep<br>≈ 250–300 SF usable area<br><em style="font-size:0.56rem;">Field verification required</em></div>
+    </div>
+    <div class="analysis-cell">
+      <div class="analysis-label">Adjacency</div>
+      <div class="analysis-value">South wall shared with Performance Theatre 241 — acoustic separation barrier. Non-penetrable for heavy anchors.</div>
+      <div><span class="analysis-risk risk-critical">Critical</span></div>
+    </div>
+    <div class="analysis-cell">
+      <div class="analysis-label">Egress Condition</div>
+      <div class="analysis-value">Primary egress corridor serving Theatre 241, Stair 1, Stair 2. Min. 44" clear width required at all times.</div>
+      <div><span class="analysis-risk risk-critical">Critical</span></div>
+    </div>
+    <div class="analysis-cell">
+      <div class="analysis-label">Ceiling</div>
+      <div class="analysis-value">ACT lay-in system. 2×2 and 2×4 direct/indirect troffers on corridor circuits. No existing gallery track lighting.</div>
+      <div><span class="analysis-risk risk-mod">Moderate</span></div>
+    </div>
+    <div class="analysis-cell">
+      <div class="analysis-label">Floor Finish</div>
+      <div class="analysis-value">CPT3 corridor carpet, continuous with hallway. No existing differentiated finish within niche footprint.</div>
+      <div><span class="analysis-risk risk-low">Low</span></div>
+    </div>
+    <div class="analysis-cell">
+      <div class="analysis-label">Electrical</div>
+      <div class="analysis-value">Corridor troffer circuits. No dedicated art-lighting circuits or dimming controls currently present in niche zone.</div>
+      <div><span class="analysis-risk risk-high">High</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- PHASE 1 -->
+<div class="phase-block drawings" style="background: var(--cream);">
+  <div class="section-header reveal">
+    <span class="section-number">03</span>
+    <h2 class="section-title">Three Concept Directions</h2>
+  </div>
+
+  <!-- Phase 1 -->
+  <div style="margin-bottom: 4rem;" class="reveal">
+    <div class="phase-header">
+      <span class="phase-badge active">Phase 1</span>
+      <h3 class="phase-title">The Alcove — Minimal Museum Insertion</h3>
+    </div>
+    <p class="phase-body">The lowest intervention, highest-impact approach. Three non-negotiable moves — a museum-grade aluminum picture rail on all three interior walls, LED track heads replacing the ACT troffers, and a floor-finish transition at the column threshold — transform the niche from corridor into gallery without a permit, without HVAC modification, and without touching the acoustic theater wall. The columns are the gateway. The recess is the room. Budget tier: $3,000–$8,000. Implementation timeline: summer 2026 or sooner.</p>
+    <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+      <span style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.3rem 0.8rem;border:1px solid var(--rule);color:var(--mid-grey);">No Permit Required</span>
+      <span style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.3rem 0.8rem;border:1px solid var(--rule);color:var(--mid-grey);">STAS Cliprail Pro</span>
+      <span style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.3rem 0.8rem;border:1px solid var(--rule);color:var(--mid-grey);">3000K 90+ CRI Track</span>
+      <span style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.3rem 0.8rem;border:1px solid var(--rule);color:var(--mid-grey);">Gallery White Repaint</span>
+      <span style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.3rem 0.8rem;border:1px solid var(--rule);color:var(--mid-grey);">LVT Floor Transition</span>
+    </div>
+  </div>
+
+  <!-- Phase 2 -->
+  <div style="margin-bottom: 4rem; padding-top: 3rem; border-top: 1px solid var(--rule);" class="reveal">
+    <div class="phase-header">
+      <span class="phase-badge">Phase 2</span>
+      <h3 class="phase-title">The Module — Flexible Student Workshop</h3>
+    </div>
+    <p class="phase-body">Built on Phase 1's foundation, Phase 2 introduces freestanding display infrastructure: custom birch-ply double-sided panels on steel T-bases, a lockable glass vitrine for ceramics and jewelry, a permanent header beam spanning the structural columns, and dedicated switching for the gallery track lighting. Students can completely reconfigure the gallery for each exhibition — teaching curatorial and installation skills as part of the program. A digital display enables video art, artist statements, and rotating portfolio showcases. Budget tier: $8,000–$25,000. Academic Year 2026–2027.</p>
+    <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+      <span style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.3rem 0.8rem;border:1px solid var(--rule);color:var(--mid-grey);">Column Header Beam</span>
+      <span style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.3rem 0.8rem;border:1px solid var(--rule);color:var(--mid-grey);">Freestanding Panels</span>
+      <span style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.3rem 0.8rem;border:1px solid var(--rule);color:var(--mid-grey);">Dedicated Switching</span>
+      <span style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.3rem 0.8rem;border:1px solid var(--rule);color:var(--mid-grey);">Digital Display</span>
+      <span style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.3rem 0.8rem;border:1px solid var(--rule);color:var(--mid-grey);">Lockable Vitrine</span>
+    </div>
+  </div>
+
+  <!-- Phase 3 -->
+  <div style="padding-top: 3rem; border-top: 1px solid var(--rule);" class="reveal">
+    <div class="phase-header">
+      <span class="phase-badge future">Phase 3 — Aspirational</span>
+      <h3 class="phase-title" style="color: var(--mid-grey);">The Vitrine — Enclosed Identity Gallery</h3>
+    </div>
+    <p class="phase-body" style="color: var(--light-grey);">The capital investment scenario: a frameless glass storefront with double doors, a dropped drywall soffit housing recessed linear track lighting, dedicated HVAC supply and return, and a donor naming opportunity. Matching the architectural language of the existing Level 1 galleries. When lit, the glass wall becomes a glowing vitrine visible from both stair approaches. Requires architect of record, Mecklenburg County building permit, and university capital project approval. Budget tier: $50,000–$120,000. Target: 2028–2030.</p>
+    <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+      <span style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.3rem 0.8rem;border:1px dashed var(--rule);color:var(--light-grey);">Permit Required</span>
+      <span style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.3rem 0.8rem;border:1px dashed var(--rule);color:var(--light-grey);">Frameless Glass Storefront</span>
+      <span style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.3rem 0.8rem;border:1px dashed var(--rule);color:var(--light-grey);">Recessed Track Soffit</span>
+      <span style="font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.3rem 0.8rem;border:1px dashed var(--rule);color:var(--light-grey);">Naming Opportunity</span>
+    </div>
+  </div>
+</div>
+
+<!-- AXON RENDER — PHASE 3 -->
+<div class="drawings" style="background: var(--charcoal); color: var(--cream); border-bottom: none;">
+  <div class="section-header reveal">
+    <span class="section-number" style="color: var(--mid-grey);">04</span>
+    <h2 class="section-title" style="color: var(--cream);">Phase 3 — Axonometric Study</h2>
+  </div>
+  <div class="drawing-full reveal">
+    <img src="axon-phase-3.png" alt="Phase 3 Enclosed Gallery — Axonometric View" style="border-color: rgba(255,255,255,0.08); background: #111;">
+  </div>
+  <div class="drawing-caption reveal" style="border-color: rgba(255,255,255,0.1);">
+    <span class="caption-title" style="color: rgba(255,255,255,0.7);">The Vitrine — Phase 3 Enclosed Gallery · Axonometric View</span>
+    <span class="caption-scale" style="color: var(--mid-grey);">Enscape</span>
+  </div>
+  <div class="concept-body reveal" style="max-width: 700px; margin-top: 1rem; color: rgba(255,255,255,0.4);">
+    <p>The Phase 3 axon reveals the full gallery vocabulary of the enclosed concept: recessed linear track mounted within a dropped drywall soffit, 3000K adjustable LED heads aimed at each hanging position, a professional picture rail running the full perimeter, and the glass storefront entry framed between the structural columns. The material strategy — gallery white painted gypsum, light oak LVT floor, matte black ACT grid within the niche zone — creates a warm but museum-caliber interior. When lit against the darker corridor, the glass wall becomes the building's most compelling display: a glowing vitrine announcing student work to every theater patron who passes.</p>
+  </div>
+</div>
+
+<!-- PHASE 2 RENDER -->
+<div class="drawings" style="background: var(--charcoal);">
+  <div class="section-header reveal">
+    <span class="section-number" style="color: rgba(255,255,255,0.2);">05</span>
+    <h2 class="section-title" style="color: var(--cream);">Phase 2 — Interior Perspective</h2>
+  </div>
+  <div class="drawing-full reveal">
+    <img src="phase-2.png" alt="Phase 2 Student Gallery — Interior Perspective Render" style="border-color: rgba(255,255,255,0.08);">
+  </div>
+  <div class="drawing-caption reveal" style="border-color: rgba(255,255,255,0.1);">
+    <span class="caption-title" style="color: rgba(255,255,255,0.7);">Student Gallery — Queens University of Charlotte · Interior Perspective</span>
+    <span class="caption-scale" style="color: var(--mid-grey);">Enscape</span>
+  </div>
+  <div class="concept-body reveal" style="max-width: 700px; margin-top: 1rem; color: rgba(255,255,255,0.4);">
+    <p>The Phase 2 perspective captures the gallery at exhibition mode: branded header beam identifying the space, track heads washing the gallery-white walls with warm light, framed works at standardized hanging heights, and the institutional carpet replaced with a light neutral LVT that differentiates the gallery footprint from the surrounding corridor. The open format — no doors, no enclosure — allows the gallery to remain perpetually "on," visible to every theater patron and passerby, drawing foot traffic through art rather than signage alone.</p>
+  </div>
+</div>
+
+<!-- PROJECT INFO -->
+<div class="course-info">
+  <div class="course-cell reveal">
+    <div class="course-label">Client / Stakeholders</div>
+    <div class="course-value">Dr. Challons-Lipton, Dept. of Art + Design · Queens University</div>
+  </div>
+  <div class="course-cell reveal">
+    <div class="course-label">Record Drawings</div>
+    <div class="course-value">Little (Architecture) · LaBella (Electrical) · 2018</div>
+  </div>
+  <div class="course-cell reveal">
+    <div class="course-label">Deliverables</div>
+    <div class="course-value">Feasibility Report · Site Analysis · 3 Concept Directions · Enscape Renders</div>
+  </div>
+  <div class="course-cell reveal">
+    <div class="course-label">Role</div>
+    <div class="course-value">Feasibility Analysis · Design Authorship · Visualization</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <a href="index.html" class="footer-back">Back to Portfolio</a>
+  <span class="footer-credit">Reagan Hack — Queens University Student Gallery · 2026</span>
+</div>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+
+  function animateRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  reveals.forEach(el => el.classList.add('visible'));
+
+  if ('IntersectionObserver' in window) {
+    reveals.forEach(el => el.classList.remove('visible'));
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 60);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.05, rootMargin: '0px 0px -30px 0px' });
+    reveals.forEach(el => observer.observe(el));
+  }
+</script>
+</body>
+</html>
